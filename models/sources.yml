@@ -6,12 +6,8 @@ sources:
     description: "Raw data from Airbnb, Census, and LGA mapping sources."
     tables:
       - name: listings_bronze
-      - name: g01_nsw_lga_bronze
-      - name: g02_nsw_lga_bronze
+      - name: census_g01_nsw_lga_bronze
+      - name: census_g02_nsw_lga_bronze
       - name: nsw_lga_code_bronze
       - name: nsw_lga_suburb_bronze
 
-  - name: silver
-    schema: silver
-    tables:
-      - name: clean_listings_silver
