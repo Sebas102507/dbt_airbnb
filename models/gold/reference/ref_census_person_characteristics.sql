@@ -4,4 +4,4 @@
 SELECT
     *
 FROM
-    {{ ref('stg_census_person_characteristics') }}
+    {{ ref('stg_census_person_characteristics_silver') }}

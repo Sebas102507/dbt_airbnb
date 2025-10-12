@@ -4,4 +4,4 @@
 SELECT
     *
 FROM
-    {{ ref('stg_census_statistical_measures') }}
+    {{ ref('stg_census_statistical_measures_silver') }}
