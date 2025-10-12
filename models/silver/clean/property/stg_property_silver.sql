@@ -2,7 +2,8 @@
     'listing_id',
     'scraped_date',
     'property_type',
-    'room_type'
+    'room_type',
+    'accommodates'
 ] %}
 
 
