@@ -11,6 +11,7 @@
         source_model=ref('clean_listings_silver'),
         unique_key='host_id',
         order_by_key='scraped_date',
-        check_cols=host_check_cols
+        check_cols=host_check_cols,
+        incremental_key='scraped_date'
     )
 }}

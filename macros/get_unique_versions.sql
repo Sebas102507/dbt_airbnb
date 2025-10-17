@@ -1,7 +1,15 @@
-{% macro get_unique_versions(source_model, unique_key, order_by_key, check_cols) %}
+{% macro get_unique_versions(source_model, unique_key, order_by_key, check_cols, incremental_key=None) %}
 
 WITH source_data AS (
     SELECT * FROM {{ source_model }}
+
+    {# This is the new block for incremental filtering #}
+    {% if is_incremental() and incremental_key %}
+    
+    -- Filter for records that are newer than the latest record in this model
+    WHERE {{ incremental_key }} > (SELECT max({{ incremental_key }}) FROM {{ this }})
+
+    {% endif %}
 ),
 
 distinct_data AS (

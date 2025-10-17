@@ -1,4 +1,4 @@
-select
+SELECT
     -- IDs and Dates
     "LISTING_ID"::varchar as listing_id,
     "SCRAPED_DATE"::date as scraped_date,
@@ -8,9 +8,7 @@ select
     -- Host Attributes
     trim("HOST_NAME")::varchar as host_name,
     ("HOST_IS_SUPERHOST" = 't') as is_superhost,
-    -- Impute null neighbourhoods with 'UNKNOWN'
-    coalesce(trim(upper("HOST_NEIGHBOURHOOD")), 'UNKNOWN')::varchar
-    as host_neighbourhood,
+    coalesce(trim(upper("HOST_NEIGHBOURHOOD")), 'UNKNOWN')::varchar as host_neighbourhood,
 
     -- Property Attributes
     trim(upper("LISTING_NEIGHBOURHOOD"))::varchar as listing_neighbourhood,
@@ -23,7 +21,6 @@ select
     ("HAS_AVAILABILITY" = 't') as has_availability,
     "AVAILABILITY_30"::integer as availability_30,
     "NUMBER_OF_REVIEWS"::integer as number_of_reviews,
-    -- Impute null review scores with 0, as they indicate no reviews
     coalesce("REVIEW_SCORES_RATING", 0)::integer as review_scores_rating,
     coalesce("REVIEW_SCORES_ACCURACY", 0)::integer as review_scores_accuracy,
     coalesce("REVIEW_SCORES_CLEANLINESS", 0)::integer as review_scores_cleanliness,
@@ -31,10 +28,16 @@ select
     coalesce("REVIEW_SCORES_COMMUNICATION", 0)::integer as review_scores_communication,
     coalesce("REVIEW_SCORES_VALUE", 0)::integer as review_scores_value
 
-from {{ source("bronze", "listings_bronze") }}
+FROM {{ source("bronze", "listings_bronze") }}
 
--- Remove the 3 rows with missing critical host information
-where
-    "HOST_SINCE" is not null
-    and "HOST_NAME" is not null
-    and "HOST_IS_SUPERHOST" is not null
+WHERE
+    "HOST_SINCE" IS NOT NULL
+    AND "HOST_NAME" IS NOT NULL
+    AND "HOST_IS_SUPERHOST" IS NOT NULL
+
+    {% if is_incremental() %}
+
+    -- This filters for records that are newer than the most recent one in the target table.
+    AND "SCRAPED_DATE"::date > (SELECT max(scraped_date) FROM {{ this }})
+
+    {% endif %}

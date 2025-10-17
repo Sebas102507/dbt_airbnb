@@ -25,14 +25,24 @@ models:
       +schema: silver 
     silver:
       clean:
-        +materialized: table
         +schema: silver
-      entities:
-        +materialized: table
-        +schema: silver
+        host:
+          +materialized: incremental
+        lga_suburb:
+          +materialized: table
+        listing:
+          +materialized: incremental
+        property:
+          +materialized: incremental
+        reference:
+          +materialized: table          
     gold:
-      +materialized: table
       +schema: gold
-      datarmart:
+      datamart:
         +materialized: view
-        +schema: gold
+      dim:
+        +materialized: table
+      fact:
+        +materialized: table
+      reference:
+        +materialized: table
