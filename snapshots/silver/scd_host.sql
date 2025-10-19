@@ -1,3 +1,7 @@
+-- This block defines a dbt snapshot named 'scd_host'.
+-- Its purpose is to create a Type 2 Slowly Changing Dimension (SCD) table,
+-- which tracks the history of changes to each host over time.
+
 {% snapshot scd_host %}
 
 {{

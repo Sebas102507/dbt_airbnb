@@ -1,48 +1,83 @@
 # dbt_project.yml
 
+# =================================================================
+# Project Metadata and General Configuration
+# =================================================================
+
+# The name of your dbt project.
 name: 'airbnb_project'
+# The version of your project.
 version: '1.0.0'
+# The version of the dbt configuration file format.
 config-version: 2
 
+# Specifies which connection profile from your `profiles.yml` file to use for this project.
 profile: 'default'
 
-model-paths: ["models"]
-analysis-paths: ["analyses"]
-test-paths: ["tests"]
-seed-paths: ["seeds"]
-macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
+# =================================================================
+# Project Structure: Defines the directory paths for different dbt assets
+# =================================================================
 
+model-paths: ["models"]          # Directory where your dbt models (.sql files) are stored.
+analysis-paths: ["analyses"]     # Directory for ad-hoc analyses that are compiled but not run.
+test-paths: ["tests"]            # Directory for your data tests.
+seed-paths: ["seeds"]            # Directory for CSV files you want to load as tables (seeds).
+macro-paths: ["macros"]          # Directory for your custom Jinja macros.
+snapshot-paths: ["snapshots"]    # Directory for your snapshot configurations.
+
+# =================================================================
+# Compilation and Cleanup Paths
+# =================================================================
+
+# The directory where dbt will store compiled SQL and other artifacts.
 target-path: "target"
+# A list of directories to remove when you run the `dbt clean` command.
 clean-targets:
   - "target"
   - "dbt_packages"
 
+# =================================================================
+# Model-Specific Configurations
+# This is the core section where you define how your models are built.
+# Configurations are hierarchical, applying from the general to the specific.
+# The '+' prefix means the config is applied to the model AND its children.
+# =================================================================
+
 models:
+  # Configurations under this key apply to all models within the 'airbnb_project'.
   airbnb_project:
+    # Configurations for models located in the `models/staging/` directory.
     staging:
-      +materialized: view
-      +schema: silver 
+      +materialized: view      # By default, all staging models will be created as database views.
+      +schema: silver          # All staging models will be created within the 'silver' schema.
+
+    # Configurations for models located in the `models/silver/` directory.
     silver:
+      # Configurations for models specifically in the `models/silver/clean/` subdirectory.
       clean:
-        +schema: silver
+        +schema: silver        # Ensures all models in this folder are built in the 'silver' schema.
+        # Specific overrides for individual models within the `clean` directory.
         host:
-          +materialized: incremental
+          +materialized: incremental # The 'host' model will be built incrementally.
         lga_suburb:
-          +materialized: table
+          +materialized: table       # The 'lga_suburb' model will be a full table, rebuilt on each run.
         listing:
-          +materialized: incremental
+          +materialized: incremental # The 'listing' model will be built incrementally.
         property:
-          +materialized: incremental
+          +materialized: incremental # The 'property' model will be built incrementally.
         reference:
-          +materialized: table          
+          +materialized: table       # Reference models will be full tables.
+
+    # Configurations for models located in the `models/gold/` directory.
     gold:
-      +schema: gold
+      +schema: gold            # By default, all models in the gold directory are built in the 'gold' schema.
+      # Configurations for models in the `models/gold/datamart/` subdirectory.
       datamart:
-        +materialized: view
+        +materialized: view      # All data mart models will be created as views for efficient querying by BI tools.
+      # Configurations for other subdirectories within the gold layer.
       dim:
-        +materialized: table
+        +materialized: table       # All dimension models will be created as full tables.
       fact:
-        +materialized: table
+        +materialized: table       # All fact models will be created as full tables.
       reference:
-        +materialized: table
+        +materialized: table       # Gold layer reference tables will also be full tables.
